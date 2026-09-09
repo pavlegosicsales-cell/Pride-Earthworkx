@@ -1,0 +1,1550 @@
+/* ==========================================================================
+   B-STEEL / UNUTRASNJE STRANICE
+   --------------------------------------------------------------------------
+   Prenos Konstrinih /service, /contact i /about stranica. Sve mjere su citane
+   iz izvora, ne procijenjene sa snimka: struktura iz data-framer-name, brojevi
+   iz <style data-framer-css-ssr-minified>. Puni teardown sa dokazima:
+   research/konstra-stranice-teardown.md (u NP Celik projektu)
+
+   Prva verzija ovog fajla je bila izmisljena: naizmjenicno slika lijevo-desno,
+   svijetli preliv u herou, kvacice u listi obima, CTA na kraju. Nista od toga
+   nije na Konstri. Zamijenjeno u cjelini.
+
+   Koriste se iskljucivo tokeni iz tokens.css. Imena tokena su zadrzana iz
+   B-Steel verzije i ne citaju se doslovno: --sand-300 je svijetla plava,
+   --cream-100 hladno bijela. Vidi OVERRIDE blok na vrhu tokens.css.
+   ========================================================================== */
+
+/* ==========================================================================
+   1. HERO UNUTRASNJE STRANICE
+   --------------------------------------------------------------------------
+   Konstra: height 100vh, padding 216px 72px 64px, Hero Image absolute inset 0,
+   Overlay #131616b3 preko cijele slike.
+
+   Overlay je TAMAN, ne svijetli preliv kao na pocetnoj. Zato je tekst bijel.
+   To je i razlog zasto ovaj hero podnosi bilo koju fotografiju: nema borbe
+   izmedju tamnog teksta i svijetlih dijelova kadra. Prva verzija ove stranice
+   je koristila svijetli preliv i tamni tekst, pa je lede nestajao preko
+   fasade i drvene tavanice.
+
+   #131616b3 je nosiva tamna na 70%. Kod nas ista racunica sa nasom tamnom.
+   ========================================================================== */
+.phero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  height: 100vh;
+  min-height: 560px;
+  padding: 216px var(--container-pad) 64px;
+  overflow: hidden;
+}
+
+.phero__image { position: absolute; inset: 0; margin: 0; overflow: hidden; }
+
+.phero__image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
+/* Veo preko fotografije. Do 02.09.2026. je bio RAVAN, rgba(10,15,31,0.70),
+   i to je bila plava iz NP Celika, zaostala iz porta. Sada su DVA sloja u
+   nasoj toploj tamnoj (--ink-900, #141818), oba u istom svojstvu:
+
+     1. traka ispod zaglavlja   0.65 -> 0 kroz prvih 170px
+     2. nosivi gradijent        0.42 na vrhu, 0.58 na 45%, 0.90 na dnu
+
+   Zasto dva a ne jedan: naslov sjedi na dnu kadra (justify-content:
+   flex-end) i tamo veo mora da nosi tekst, dok bi ista gustina na vrhu
+   ugasila fotografiju. Ali zaglavlje je na vrhu providno i nosi svijetla
+   slova (.header--on-dark), pa i njemu treba podloga.
+
+   Jedan gradijent to ne moze oboje. Izmjereno: na galeriji je nebo pri vrhu
+   rgb(221) i pri vrijednosti 0.50 je navigacija davala 3.96:1, ispod AA.
+   Racunski je za 7:1 tamo trebalo 0.71, sto je prakticno stari ravan veo i
+   ponistilo bi "gore manje crno".
+
+   Zato traka pokriva samo prvih 170px, tacno onoliko koliko zaglavlje i
+   zauzima. Slojevi se mnoze: 1 - (1-0.65)(1-0.42) = 0.80 na samom vrhu, a
+   vec na 170px ostaje samo 0.42 i fotografija se vidi. */
+.phero__overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(180deg, rgba(20, 24, 24, 0.65) 0px, rgba(20, 24, 24, 0) 170px),
+    linear-gradient(180deg,
+      rgba(20, 24, 24, 0.42) 0%,
+      rgba(20, 24, 24, 0.58) 45%,
+      rgba(20, 24, 24, 0.90) 100%);
+}
+
+/* Usluge imaju svjetliju fotografiju od druge dvije: snimak iz vazduha, a
+   pri dnu kadra je beton i parking na suncu. Isti veo tamo drzi manje nego
+   na Galeriji i O nama, pa donji kraj ide sa 0.90 na 0.96. Gornji dio se ne
+   dira, da traka ispod zaglavlja ostane ista na sve tri strane. */
+.phero--tamnije .phero__overlay {
+  background-image:
+    linear-gradient(180deg, rgba(20, 24, 24, 0.65) 0px, rgba(20, 24, 24, 0) 170px),
+    linear-gradient(180deg,
+      rgba(20, 24, 24, 0.42) 0%,
+      rgba(20, 24, 24, 0.66) 45%,
+      rgba(20, 24, 24, 0.96) 100%);
+}
+
+.phero__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  width: 100%;
+  max-width: var(--container-content);
+  margin-inline: auto;
+}
+
+/* Konstra: Heading je flex column, gap 20px, max-width 556px. */
+.phero__heading {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  max-width: 556px;
+}
+
+.phero__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-5xl);
+  line-height: var(--leading-h1);
+  letter-spacing: var(--tracking-normal);
+  font-weight: var(--weight-medium);
+  color: var(--ash-50);
+}
+
+.phero__lead {
+  margin: 0;
+  font-size: var(--text-lg);
+  line-height: var(--leading-lead);
+  color: var(--ash-500);
+}
+
+/* Mrvice. Konstra ih drzi IZNAD naslova, flex row, width min-content. */
+.crumbs__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+  color: var(--ash-500);
+}
+
+.crumbs__item + .crumbs__item::before {
+  content: "/";
+  margin-right: 8px;
+  color: var(--ash-600);
+}
+
+.crumbs__item a {
+  color: var(--ash-500);
+  text-decoration: none;
+  transition: color var(--duration-hover) var(--ease-hover);
+}
+
+.crumbs__item a:hover { color: var(--ash-50); }
+.crumbs__item[aria-current="page"] { color: var(--ash-50); }
+
+/* ==========================================================================
+   2. SPISAK USLUGA  (Konstra: Service Index)
+   --------------------------------------------------------------------------
+   Sekcija: bg #F7F8F8, padding 112px 72px.
+   Stavka:  flex row, gap 48px, width 1296px, padding 16px 32px 16px 16px.
+   Slika je UVIJEK lijevo. Nema naizmjenicnog rasporeda.
+   ========================================================================== */
+.sindex {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 112px var(--container-pad);
+  background-color: var(--ash-50);
+}
+
+.sindex__inner {
+  width: 100%;
+  max-width: 1296px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sitem {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 48px;
+  width: 100%;
+  padding: 16px 32px 16px 16px;
+}
+
+.sitem__media {
+  flex: 1 0 0;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background-color: var(--ash-300);
+}
+
+.sitem__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--duration-hover-slow) var(--ease-hover);
+}
+
+.sitem:hover .sitem__media img { transform: scale(var(--hover-scale)); }
+
+/* Service Info: flex column, gap 20px. */
+.sitem__body {
+  flex: 1 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.sitem__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  line-height: var(--leading-h4);
+  letter-spacing: var(--tracking-tighter);
+  font-weight: var(--weight-medium);
+  color: var(--color-heading);
+}
+
+.sitem__desc {
+  margin: 0;
+  font-size: var(--text-lg);
+  line-height: var(--leading-lead);
+  color: var(--color-text);
+}
+
+.sitem__scope-title {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  color: var(--color-heading);
+}
+
+/* List Inner: flex column, gap 16px, max-width 344px. */
+.sitem__scope {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 344px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Project scope: flex row, gap 8px, align center. */
+.sitem__scope li {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-base);
+  line-height: 1.4;
+  color: var(--color-text);
+}
+
+.sitem__scope svg { width: 16px; height: 16px; flex: none; color: var(--slate-700); }
+
+/* ==========================================================================
+   3. KONTAKT  (Konstra: Contact)
+   --------------------------------------------------------------------------
+   Sekcija: bg #F7F8F8, padding 200px 72px 112px.
+   ========================================================================== */
+.kontakt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 200px var(--container-pad) 112px;
+  background-color: var(--ash-50);
+}
+
+.kontakt__inner {
+  width: 100%;
+  max-width: var(--container-content);
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 72px;
+  align-items: start;
+}
+
+/* Naslov ide preko obje kolone; forma je prvi blok ispod njega, podaci
+   za kontakt idu poslije nje (desno na desktopu, ispod na uzem ekranu). */
+.kontakt__head {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.kontakt__form { grid-column: 1; }
+
+.kontakt__intro {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+/* Naslov je 02.09.2026. povecan na zahtjev. Skala je STEPENASTA, ne fluidna:
+   Konstra nema clamp() i prelomne tacke su 810 i 1440, pa fluidna skala
+   promasuje bas na njima. Koraci su ovdje, tablet i desktop nize u fajlu.
+
+   Prostora ima: prije izmjene je naslov na 40px zauzimao 782px od 1296px
+   raspolozivih, u jednom redu. Sa rucnim prelomom prvi red je najduzi i na
+   68px staje u oko 780px, dakle i dalje sa rezervom.
+
+   Mobilni ostaje na 40px. Tamo se i taj naslov vec lomi u tri reda na 390px,
+   pa bi vece slovo samo gurnulo obrazac nize. */
+.kontakt__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tighter);
+  font-weight: var(--weight-medium);
+  color: var(--color-heading);
+}
+
+.kontakt__lead {
+  margin: 0;
+  max-width: 46ch;
+  font-size: var(--text-lg);
+  line-height: var(--leading-lead);
+  color: var(--color-text);
+}
+
+/* Contact details container: gap 32px, max-width 236px.
+   Email container: gap 8px, naslovcic iznad vrijednosti. */
+/* Sirina je podignuta sa 236 na 340px zajedno sa slovima. Na 236px se
+   "montaznehale24@gmail.com" na 22px vise ne bi uklopio u jedan red i
+   prelomio bi se na pola adrese. */
+.kontakt__details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 32px;
+  max-width: 340px;
+}
+
+.kdetail { display: flex; flex-direction: column; gap: 8px; }
+
+/* Oznaka i vrijednost su 02.09.2026. povecane i podebljane na zahtjev:
+   oznaka 14 -> 16px, vrijednost 18 -> 22px, obje na medium 500. Ostaju
+   tise od naslova, ali se citaju sa razmaka. Ikonica prati slovo, 15 -> 17px.
+   Kontrast se ne mijenja: #6E7676 na #F7F8F8 = 4.9:1, #141818 = 15.1:1. */
+.kdetail__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-wide);
+  color: var(--ash-600);
+}
+
+.kdetail__label svg { width: 17px; height: 17px; flex: none; }
+
+.kdetail__value {
+  font-size: 22px;
+  line-height: 30px;
+  font-weight: var(--weight-medium);
+  color: var(--color-heading);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--duration-hover) var(--ease-hover);
+}
+
+a.kdetail__value:hover { border-bottom-color: var(--color-heading); }
+
+/* ==========================================================================
+   4. WIZARD FORMA  ->  PRESELJEN U styles.css
+   --------------------------------------------------------------------------
+   Wizard je 02.09.2026. stavljen i u sekciju Kontakt na POCETNOJ strani, a
+   index.html ne ucitava ovaj fajl. Zato sva pravila za .wizard, .wstep,
+   .wopt, .wfield, .wnav i staklenu varijantu sada stoje u styles.css, koji
+   ucitavaju sve strane. Ovdje nista ne ostaje, da se ne bi duplirala.
+   ========================================================================== */
+
+/* ==========================================================================
+   5. STA SLEDI  (Konstra: What happens next)
+   --------------------------------------------------------------------------
+   bg #000000, padding 112px 72px. Jedina tamna sekcija na kontaktu.
+   Number: padding 12px 14px, gap 10px.
+   ========================================================================== */
+.next {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 112px var(--container-pad);
+  background-color: var(--pure-black);
+}
+
+.next__inner {
+  width: 100%;
+  max-width: var(--container-content);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-9);
+}
+
+.next__title {
+  margin: var(--space-4) 0 0;
+  max-width: 20ch;
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  line-height: var(--leading-h4);
+  letter-spacing: var(--tracking-tighter);
+  font-weight: var(--weight-medium);
+  color: var(--color-dark-heading);
+}
+
+.next__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-7); }
+.nstep { display: flex; flex-direction: column; gap: var(--space-4); align-items: flex-start; }
+
+.nstep__num {
+  padding: 12px 14px;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-wide);
+  color: var(--ink-900);
+  background-color: var(--teal-300);
+  border-radius: var(--radius-sm);
+}
+
+.nstep__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  line-height: var(--leading-h4);
+  font-weight: var(--weight-medium);
+  color: var(--color-dark-heading);
+}
+
+.nstep p { margin: 0; color: var(--color-dark-text); }
+
+/* ==========================================================================
+   6. O NAMA
+   --------------------------------------------------------------------------
+   Ritam podloga sa Konstre, u nasoj paleti:
+   Hero svijetlo · Mission slika · Core Value svijetlo · History plavo ·
+   Ekipa crno · Reference svijetlo
+   ========================================================================== */
+/* .ahero drzi i uvodni blok i sekciju Mission ispod njega, pa fotografija
+   NE MOZE na samu sekciju: prekrila bi i Mission. Zato uvodni blok ima svoj
+   omotac .ahero__top, koji nosi sliku, veo i padding, a .ahero ostaje samo
+   kolona bez razmaka sa strane. */
+/* BEZ RAZMAKA. Dok je uvodni blok bio kremast, ovih 72px se nije vidjelo:
+   razmak i blok su bili iste boje. Otkad je hero fotografija, isti razmak je
+   postao bijela traka izmedju heroja i sekcije Mission ispod njega.
+   Sekcije se sada dodiruju, kao i na Uslugama i Galeriji. */
+.ahero {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  padding: 0;
+  background-color: var(--ash-50);
+}
+
+/* Isti raspored kao .phero na Uslugama i Galeriji: preko cijelog ekrana,
+   sadrzaj poravnat po dnu kadra. Razlika je samo u sadrzaju, jer O nama
+   ima i dva dugmeta ispod opisa. */
+.ahero__top {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 100%;
+  min-height: 100vh;
+  padding: 216px var(--container-pad) 96px;
+  overflow: hidden;
+}
+
+.ahero__media { position: absolute; inset: 0; z-index: 0; margin: 0; overflow: hidden; }
+
+.ahero__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
+/* Ista dva sloja kao na .phero, da sve tri unutrasnje strane pocinju isto.
+   Obrazlozenje stoji uz .phero__overlay. */
+.ahero__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image:
+    linear-gradient(180deg, rgba(20, 24, 24, 0.65) 0px, rgba(20, 24, 24, 0) 170px),
+    linear-gradient(180deg,
+      rgba(20, 24, 24, 0.42) 0%,
+      rgba(20, 24, 24, 0.58) 45%,
+      rgba(20, 24, 24, 0.90) 100%);
+}
+
+/* Padding ide na sekciju, ne na unutrasnji okvir. Dok su oba stajala na
+   __inner, max-width 1320 i padding 72 su se sabirali pa je tekst pocinjao
+   na 132px, dvostruko uvucenije nego na ostalim stranicama. */
+.ahero__inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--container-content);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* Prelom je rucni, kroz <br> u markupu: "Radionica sa adresom," u prvom
+   redu, "ekipa sa imenom." u drugom. Zato ovdje nema max-width; 18ch je
+   sjeklo prvi dio na pola pa je naslov ispadao u tri reda. */
+.ahero__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-5xl);
+  line-height: var(--leading-h1);
+  letter-spacing: var(--tracking-normal);
+  font-weight: var(--weight-medium);
+  /* Svijetlo, jer naslov od 02.09.2026. stoji preko fotografije.
+     #F7F8F8 preko vela od 0.90 daje preko 14:1. */
+  color: var(--ash-50);
+}
+
+.ahero__lead {
+  margin: 0;
+  max-width: 60ch;
+  font-size: var(--text-lg);
+  line-height: var(--leading-lead);
+  color: var(--ash-300);
+}
+
+.ahero__actions { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+
+/* --- Mission: lijepljena slika koja se zamucuje, dvije kartice preko nje ---
+   Po Konstrinoj /about. Mjere su iz njenog izvora, ne sa snimka:
+     Bg Image  sticky top 0, odnos 1.49817 (961px na 1440)
+     Kartica   886 sirine, padding 32, radius 12, razmak 40
+     Slika     266 x 315
+   Sekcija ide preko pune sirine, pa ponistava bocni padding roditelja. */
+.msn {
+  position: relative;
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
+  overflow: clip;
+  background-color: var(--color-bg);
+}
+
+.msn__stage {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  /* 100 / 1.49817 = 66.75vw. Isti odnos kao na originalu. */
+  height: 66.75vw;
+  max-height: 100vh;
+}
+
+.msn__bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  will-change: filter;
+}
+
+/* Uvecanje od 4% je zbog zamucenja: bez njega bi se kroz meke ivice
+   vidjela podloga sekcije po obodu kadra. */
+.msn__bg img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.04);
+}
+
+.msn__card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  width: min(886px, calc(100% - 2 * var(--container-pad)));
+  padding: 32px;
+  border-radius: var(--radius-xl);
+  background-color: var(--ash-100);
+  box-shadow:
+    0 5px 10px rgba(6, 10, 20, 0.06),
+    0 19px 19px rgba(6, 10, 20, 0.05),
+    0 43px 26px rgba(6, 10, 20, 0.03),
+    0 76px 30px rgba(6, 10, 20, 0.01);
+  transform: translate(-50%, -50%);
+}
+
+/* Druga kartica ceka svoj red. Skripta prepisuje oba svojstva. */
+.msn__card + .msn__card { opacity: 0; }
+
+.msn__media {
+  flex: none;
+  width: 266px;
+  height: 315px;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+}
+
+.msn__media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+.msn__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  min-width: 0;
+}
+
+.msn__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  /* 40/46 kao na originalu. --leading-h1 je za hero i daje 88px, pa bi
+     naslov od dva reda bio razvucen preko cijele kartice. */
+  line-height: 46px;
+  letter-spacing: var(--tracking-tighter);
+  font-weight: var(--weight-medium);
+  color: var(--color-heading);
+}
+
+.msn__body p { margin: 0; max-width: 46ch; color: var(--color-text); }
+
+/* 1478px je duzina skrola na originalu: ukupna visina sekcije 2439 minus
+   961 koliko je visoka slika. Kroz nju traje i zamucenje i smjena. */
+.msn__rail { height: 1478px; }
+
+/* --- Core Value: cetiri kolone sa lenjirima koji se skupljaju pri skrolu ---
+   Po Konstrinoj /about. Iz njenog izvora:
+     Sekcija  padding 112px 72px, razmak 72
+     Sticky   sticky top 0, visina 100vh, min-height 820
+     Kolona   300px, cetiri u redu sa razmakom 32
+     Lenjir   14px sirok, 254 -> 133px visok, tacke 12px, linija 2px
+     Plocica  padding 4px 12px, radius 4px
+     Odsjecak skrola  496px po koloni */
+.cvals {
+  position: relative;
+  width: 100%;
+  padding: 112px var(--container-pad);
+  background-color: var(--ash-50);
+}
+
+.cvals__sticky {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 72px;
+  width: 100%;
+  max-width: var(--container-content);
+  min-height: 820px;
+  height: 100vh;
+  margin-inline: auto;
+}
+
+.cvals__head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+}
+
+.cvals__title {
+  margin: 0;
+  max-width: 633px;
+  /* Naslov se pali pri skrolu, ali na bijeloj podlozi, pa efekat ide ka
+     mastilu umjesto ka hladno bijeloj. */
+  --fill-on: var(--color-heading);
+  --fill-off: var(--ash-600);
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  line-height: 50px;
+  letter-spacing: var(--tracking-tighter);
+  font-weight: var(--weight-medium);
+  color: var(--color-heading);
+}
+
+.cvals__row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: start;
+  gap: 32px;
+  width: 100%;
+}
+
+.cval {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* Broj i lenjir dijele istu osu, pa je lenjir centriran ispod broja. */
+.cval__mark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: min-content;
+}
+
+.cval__num {
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  line-height: 46px;
+  letter-spacing: var(--tracking-tighter);
+  font-weight: var(--weight-medium);
+  color: var(--ash-600);
+}
+
+/* Tacka gore, tacka dolje, linija izmedju. Visinu mijenja skripta. */
+.cval__rule {
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: 254px;
+  /* Linija je pozadina, ne treci element: ::before i ::after vec drze
+     tacke. Sirina 2px, centrirana, kao na originalu. */
+  background: linear-gradient(var(--slate-700), var(--slate-700)) center / 2px 100% no-repeat;
+}
+
+.cval__rule::before,
+.cval__rule::after {
+  content: "";
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  height: 12px;
+  border-radius: var(--radius-pill);
+  background-color: var(--slate-700);
+}
+
+.cval__rule::before { top: 0; }
+.cval__rule::after  { bottom: 0; }
+
+.cval__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 40px;
+  width: 100%;
+}
+
+.cval__tag {
+  margin: 0;
+  padding: 4px 12px;
+  border-radius: 4px;
+  background-color: var(--teal-300);
+  font-size: var(--text-lg);
+  line-height: var(--leading-lead);
+  color: var(--color-on-accent);
+}
+
+.cval__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+}
+
+.cval__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  line-height: var(--leading-h4);
+  letter-spacing: var(--tracking-tighter);
+  font-weight: var(--weight-medium);
+  color: var(--color-heading);
+}
+
+.cval__text p { margin: 0; color: var(--color-text); }
+
+/* Cetiri odsjecka skrola, jedan po koloni. */
+.cvals__rail { height: 496px; }
+
+/* Strelice postoje samo u telefonskoj verziji, gdje red postaje slider. */
+.cvals__nav { display: none; }
+
+.cvals__arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--color-heading);
+  transition: background-color var(--duration-fast) var(--ease-hover),
+              border-color var(--duration-fast) var(--ease-hover),
+              color var(--duration-fast) var(--ease-hover),
+              opacity var(--duration-fast) var(--ease-hover);
+}
+
+.cvals__arrow svg { width: 18px; height: 18px; }
+
+/* Strelice ulijevo nema u spriteu, pa se desna okrece. */
+.cvals__arrow[data-cvals-prev] svg { transform: rotate(180deg); }
+
+.cvals__arrow--on {
+  border-color: var(--ink-900);
+  background-color: var(--ink-900);
+  color: var(--ash-50);
+}
+
+.cvals__arrow[disabled] { opacity: 0.35; }
+
+/* Kad je animacija iskljucena, obje sekcije se ponasaju kao na uzem ekranu:
+   nema lijepljenja, nema praznog skrola, obje kartice se vide odjednom.
+   Skripta u tom slucaju i ne krece, pa niko ne prepisuje ove vrijednosti. */
+@media (prefers-reduced-motion: reduce) {
+  .msn__stage { position: static; height: auto; min-height: 0; max-height: none; }
+  .msn__bg { position: relative; height: 66.75vw; }
+  .msn__bg img { transform: none; }
+  .msn__card {
+    position: static;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    margin-top: var(--space-6);
+    transform: none;
+    opacity: 1;
+    box-shadow: none;
+  }
+  .msn__media { width: 100%; height: 243px; }
+  .msn__rail { display: none; }
+  .msn { padding-bottom: var(--space-9); }
+
+  .cvals__sticky { position: static; height: auto; min-height: 0; justify-content: flex-start; gap: var(--space-8); }
+  .cvals__rail { display: none; }
+  .cval__rule { height: 133px; }
+}
+
+/* --- Put: koraci lijevo, lijepljena slika desno ---
+   Po Konstrinoj "Build Stages" sa pocetne. Mjere iz njenog izvora:
+     Sekcija    padding 112px 72px, razmak 72
+     Zaglavlje  red, poravnanje po dnu, naslov lijevo, podnaslov desno
+     Sadrzaj    red, razmak 64
+     Korak      red, razmak 24, padding 32px 0 0
+     Broj       56px sirok, padding 12px 16px, radius 50px
+     Tijelo     razmak 12, padding 8px 0 32px, linija po dnu
+     Slika      sticky top 80, max-width 50%, odnos 0.8556, radius 12
+
+   Podloga je kod Konstre pjescana; kod nas ostaje svijetla plava iz palete,
+   pa je i broj u krugu hladno bijel umjesto krem. */
+.hist {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 112px var(--container-pad);
+  background-color: var(--teal-300);
+}
+
+.hist__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 72px;
+  width: 100%;
+  max-width: var(--container-content);
+  margin-inline: auto;
+}
+
+.hist__head {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-8);
+  width: 100%;
+}
+
+.hist__title-wrap { display: flex; flex-direction: column; gap: 12px; }
+
+.hist__title {
+  margin: 0;
+  max-width: 16ch;
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  line-height: 50px;
+  letter-spacing: var(--tracking-tighter);
+  font-weight: var(--weight-medium);
+  color: var(--ink-900);
+}
+
+.hist__lead {
+  margin: 0;
+  max-width: 34ch;
+  font-size: var(--text-lg);
+  line-height: var(--leading-lead);
+  text-align: right;
+  color: var(--slate-700);
+}
+
+.hist__body {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 64px;
+  width: 100%;
+}
+
+.hist__steps {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hstep {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-6);
+  padding-top: 32px;
+}
+
+.hstep__num {
+  flex: none;
+  width: 56px;
+  padding: 12px 16px;
+  border-radius: var(--radius-pill);
+  background-color: var(--ash-100);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  line-height: var(--leading-lead);
+  font-weight: var(--weight-medium);
+  text-align: center;
+  color: var(--ink-900);
+}
+
+.hstep__body {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 0 32px;
+  border-bottom: var(--border-width) solid rgba(10, 15, 31, 0.16);
+}
+
+/* Godina je nas dodatak: Konstrin korak je nema, ali sekcija je vremenska
+   linija pa broj godine mora da se vidi. Stoji na desnom kraju naslova. */
+.hstep__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.hstep__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  line-height: var(--leading-h5);
+  letter-spacing: -0.01em;
+  font-weight: var(--weight-medium);
+  color: var(--ink-900);
+}
+
+.hstep__year {
+  flex: none;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-medium);
+  color: var(--slate-700);
+}
+
+.hstep__body p { margin: 0; max-width: 46ch; color: var(--slate-700); }
+
+.hist__media {
+  position: sticky;
+  top: 80px;
+  flex: 1 1 0;
+  max-width: 50%;
+  min-width: 0;
+}
+
+.hist__media img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 0.8556;
+  object-fit: cover;
+  border-radius: var(--radius-xl);
+}
+
+/* --- Reference: forma Konstrine Awards liste, lokacija umjesto godine --- */
+.arefs {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 112px var(--container-pad);
+  background-color: var(--ash-50);
+}
+
+.arefs__inner { width: 100%; max-width: var(--container-content); margin-inline: auto; }
+
+.arefs__title {
+  margin: var(--space-4) 0 var(--space-9);
+  max-width: 16ch;
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tighter);
+  font-weight: var(--weight-medium);
+  color: var(--color-heading);
+}
+
+.rrow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-5);
+  width: 100%;
+  padding: 32px 0;
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.rrow:first-of-type { border-top: var(--border-width) solid var(--color-border); }
+
+/* Red sa fotografijom je link koji otvara lightbox. Redovi bez fotografije
+   (Paligoric i Ford salon, za koje jos nemamo snimak) ostaju <div> i ne
+   ponasaju se kao da se moze kliknuti. */
+/* Pomak na hover ide kroz transform, ne kroz padding. Padding je layout
+   svojstvo: pretrazivac na svaki kadar iznova prelama cijeli red, pa prelaz
+   poskakuje umjesto da klizi. Ovako se pomjeraju samo broj i naziv, red
+   ostaje na mjestu, a bocni prostor za podlogu je stalan.
+   Uz to je prva verzija koristila token koji ne postoji u tokens.css, pa
+   tranzicije nije ni bilo i stanje se mijenjalo u jednom kadru. */
+a.rrow {
+  text-decoration: none;
+  color: inherit;
+  padding-inline: var(--space-4);
+  margin-inline: calc(-1 * var(--space-4));
+  transition: background-color var(--duration-fast) var(--ease-hover);
+}
+
+a.rrow:hover,
+a.rrow:focus-visible { background-color: var(--ash-100); }
+
+a.rrow .rrow__num,
+a.rrow .rrow__name { transition: transform var(--duration-fast) var(--ease-hover); }
+
+a.rrow:hover .rrow__num,
+a.rrow:hover .rrow__name,
+a.rrow:focus-visible .rrow__num,
+a.rrow:focus-visible .rrow__name { transform: translateX(8px); }
+
+.rrow__see {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: var(--space-5);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--ash-600);
+  /* Vidi se i bez hovera, inace niko ne zna da red moze da se otvori.
+     Na hover se pojaca i primakne. */
+  opacity: 0.45;
+  transform: translateX(-6px);
+  transition: opacity var(--duration-fast) var(--ease-hover),
+              transform var(--duration-fast) var(--ease-hover);
+}
+
+.rrow__see svg { width: 14px; height: 14px; }
+
+a.rrow:hover .rrow__see,
+a.rrow:focus-visible .rrow__see { opacity: 1; transform: none; }
+
+/* Bez pokazivaca (telefon, tablet) hover ne postoji, pa oznaka stoji puna. */
+@media (hover: none) {
+  .rrow__see { opacity: 1; transform: none; }
+}
+
+
+.rrow__num {
+  flex: none;
+  width: 42px;
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  line-height: var(--leading-h4);
+  letter-spacing: var(--tracking-tighter);
+  font-weight: var(--weight-medium);
+  color: var(--ash-600);
+}
+
+.rrow__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-left: clamp(24px, 9vw, 178px);
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  line-height: var(--leading-h4);
+  letter-spacing: var(--tracking-tighter);
+  font-weight: var(--weight-medium);
+  color: var(--color-heading);
+}
+
+.rrow__meta {
+  flex: none;
+  margin-left: auto;
+  padding-left: var(--space-5);
+  font-size: var(--text-base);
+  color: var(--ash-600);
+  text-align: right;
+}
+
+/* --- Zavrsna traka: fotografija preko pune sirine, tekst preko nje ---
+   Po Konstrinoj CTA sekciji: slika u pozadini, taman veo odozdo, sadrzaj
+   lijevo dolje, jedno puno dugme. Visina je vezana za ekran, ne za sliku,
+   da traka radi i sa uspravnom i sa pejzaznom fotografijom. */
+.ocean {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  min-height: min(760px, 86vh);
+  padding: 112px var(--container-pad);
+  overflow: hidden;
+  background-color: var(--pure-black);
+  isolation: isolate;
+}
+
+/* Slojevi idu pozitivnim z-indeksom. Sa negativnim (-2 / -1) slika je
+   padala IZA sopstvene pozadine sekcije, jer isolation: isolate pravi
+   kontekst slaganja, pa se fotografija uopste nije vidjela. */
+.ocean__media { position: absolute; inset: 0; z-index: 0; }
+
+.ocean__media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* Veo koji se pri dnu zatvara u PUNU crnu, da sekcija prelije u podnozje
+   bez vidljive linije. Podnozje je background-color: var(--pure-black),
+   dakle #000000, pa i ovaj veo zavrsava bas na toj boji sa alfom 1. Time
+   zadnjih par procenata sekcije i prvi red podnozja imaju identican piksel
+   i sav ostaje da se vidi samo fotografija koja se gubi ka gore.
+
+   Do 02.09.2026. je ovdje stajala rgba(6, 10, 20, ...), plava iz NP Celika
+   zaostala iz porta, i zavrsavala na 0.88. Zbog te dvije stvari se izmedju
+   sekcije i podnozja vidio prelaz: i po boji i po gustini.
+
+   Tekst sjedi na dnu, gdje je veo pun, pa je citljivost tamo najbolja. */
+.ocean::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg,
+    rgba(0, 0, 0, 0.18)  0%,
+    rgba(0, 0, 0, 0.42) 38%,
+    rgba(0, 0, 0, 0.76) 66%,
+    rgba(0, 0, 0, 0.95) 86%,
+    rgb(3, 0, 0)       100%);
+}
+
+.ocean__inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: var(--container-content);
+  margin-inline: auto;
+}
+
+.ocean__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-5xl);
+  line-height: var(--leading-h1);
+  letter-spacing: var(--tracking-normal);
+  font-weight: var(--weight-medium);
+  color: var(--ash-50);
+}
+
+.ocean__lead {
+  margin: 0;
+  max-width: 46ch;
+  font-size: var(--text-lg);
+  line-height: var(--leading-lead);
+  color: var(--ash-500);
+}
+
+.ocean__actions { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-3); }
+
+/* Ivicno dugme na tamnom: natpis mora da pobijeli, ivicu vec crta
+   .btn--on-dark-outline. */
+.ocean__actions .btn--outline { color: var(--ash-50); }
+
+/* --- Galerija: mreza kartica  ->  PRESELJENO U styles.css ---
+   Kartice se od 02.09.2026. koriste i u sekciji Radovi na POCETNOJ strani, a
+   index.html ne ucitava ovaj fajl. Zato .gal, .gal__grid i sva .gcard
+   pravila sada stoje u styles.css. Ovdje ne ostaje nista, da se ne dupliraju.
+   Mobilni preklop (.gal__grid u jednu kolonu) je otisao zajedno s njima. */
+
+/* --- Oznaka sekcije, ista svuda --- */
+.slabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--ash-600);
+}
+
+.slabel .dot { width: 8px; height: 8px; flex: none; background-color: var(--coral-400); }
+.slabel--dark { color: var(--ash-500); }
+
+/* ==========================================================================
+   7. PRELOMNE TACKE
+   --------------------------------------------------------------------------
+   Konstrine granice: 1440 desktop, 810 tablet, 809.98 telefon.
+   ========================================================================== */
+@media (max-width: 1439.98px) {
+  .phero { padding: 180px var(--container-pad) 56px; }
+  .sindex { padding: 96px var(--container-pad); }
+  .kontakt { padding: 168px var(--container-pad) 96px; }
+  .kontakt__inner { gap: var(--space-8); }
+  .next, .cvals, .hist, .arefs { padding: 96px var(--container-pad); }
+  .ahero__top { padding: 180px var(--container-pad) 80px; }
+}
+
+@media (max-width: 1024px) {
+  .kontakt__inner { grid-template-columns: 1fr; }
+  .kontakt__form, .kontakt__intro { grid-column: 1; }
+  .kontakt__details { max-width: none; flex-direction: row; flex-wrap: wrap; gap: var(--space-6); }
+  .next__grid { grid-template-columns: 1fr; gap: var(--space-6); }
+
+  /* Cetiri kolone ne staju: idu dva po dva, lijepljenje i lenjiri se gase,
+     lenjir ostaje na kratkoj mjeri. */
+  .cvals__sticky { position: static; height: auto; min-height: 0; justify-content: flex-start; gap: var(--space-8); }
+  .cvals__row { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: var(--space-8); }
+  .cvals__rail { display: none; }
+  .cval__rule { height: 133px; }
+
+  /* Sekcija zadrzava lijepljenje i na uzem ekranu, kao na Konstri: pozadina
+     se zamucuje, kartice se smjenjuju preko nje.
+
+     Scena ide na punu visinu ekrana, a kartica se skracuje toliko da oko
+     nje ostane vazduha. Prva verzija je imala scenu od 78svh i karticu od
+     657px, dakle tacno koliko i scena, pa je kartica dodirivala i gornju i
+     donju ivicu sekcije i djelovala kao da je odsjecena.
+
+     Konstra na telefonu drzi pozadinu na 784px, karticu oko 600 i ostavlja
+     razmak sa obje strane; ovdje je isti odnos, samo vezan za visinu
+     ekrana umjesto za fiksan broj. */
+  .msn__stage { height: 100svh; min-height: 540px; max-height: none; }
+  .msn__card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+    width: min(340px, calc(100% - 32px));
+    padding: 20px;
+  }
+  .msn__media { width: 100%; height: 190px; }
+  .msn__title { font-size: var(--text-2xl); line-height: var(--leading-h5); }
+  .msn__body { gap: var(--space-3); }
+  .msn__body p { font-size: var(--text-base); line-height: 24px; }
+  .msn__rail { height: 1100px; }
+
+  /* Put: slika ide iznad koraka i prestaje da se lijepi. */
+  .hist__body { flex-direction: column; gap: var(--space-7); }
+  .hist__media { position: static; max-width: none; width: 100%; order: -1; }
+  .hist__media img { aspect-ratio: 16 / 10; }
+}
+
+@media (max-width: 809.98px) {
+  /* Hero: 100vh na telefonu pojede cijeli ekran prije nego se vidi sadrzaj.
+     76svh, sa svh zbog trake pretrazivaca koja se skuplja pri skrolu. */
+  .phero {
+    height: auto;
+    min-height: 76svh;
+    padding: 132px var(--container-pad) 48px;
+  }
+
+  .sindex { padding: 64px var(--container-pad); }
+
+  /* Konstra na telefonu stavlja sliku iznad teksta i gasi red. */
+  .sitem { flex-direction: column; gap: var(--space-5); padding: var(--space-5) 0; }
+  .sitem__media { width: 100%; flex: none; }
+  .sitem__body { flex: none; width: 100%; }
+  .sitem__scope { max-width: none; }
+
+  .kontakt { padding: 120px var(--container-pad) 64px; }
+  .kontakt__details { flex-direction: column; gap: var(--space-5); }
+
+
+  .next, .cvals, .hist, .arefs { padding: 64px var(--container-pad); }
+
+  /* Na telefonu hero nije pun ekran: naslov, opis i dva dugmeta pune
+     ga i bez toga, a 100vh bi gurnuo sav sadrzaj ispod prevoja. */
+  .ahero__top { min-height: 0; padding: 132px var(--container-pad) 64px; }
+  .ahero__actions .btn { width: 100%; justify-content: center; }
+
+  /* Konstra na telefonu ne slaze cetiri pravila jedno ispod drugog nego ih
+     pusta kao slider sa dvije okrugle strelice. Isto ovdje: red postaje
+     traka sa scroll-snapom, jedna kolona po ekranu, lenjir ostaje na punoj
+     mjeri jer se na telefonu ne skuplja.
+     Negativne margine i padding vracaju traku na punu sirinu ekrana, pa
+     susjedna kartica moze da proviri sa strane. */
+  .cvals__row {
+    display: flex;
+    grid-template-columns: none;
+    gap: var(--space-6);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    margin-inline: calc(-1 * var(--container-pad));
+    padding-inline: var(--container-pad);
+    padding-bottom: var(--space-4);
+  }
+
+  .cvals__row::-webkit-scrollbar { display: none; }
+
+  .cval {
+    flex: 0 0 min(300px, calc(100vw - 2 * var(--container-pad) - 32px));
+    scroll-snap-align: start;
+  }
+
+  .cvals__nav { display: flex; gap: var(--space-3); align-self: center; }
+
+  .msn__card { padding: 20px; }
+
+  .ocean { min-height: 0; padding: 96px var(--container-pad); }
+  .ocean__actions .btn { width: 100%; justify-content: center; }
+
+
+  /* Naslov i podnaslov ne staju u jedan red. */
+  .hist__head { flex-direction: column; align-items: flex-start; gap: var(--space-5); }
+  .hist__lead { text-align: left; max-width: none; }
+  .hstep { gap: var(--space-4); padding-top: 24px; }
+  .hstep__head { flex-direction: column; gap: 4px; align-items: flex-start; }
+
+  /* Na telefonu red ne staje u jedan red: broj i godina idu iznad naziva. */
+  .rrow { flex-wrap: wrap; gap: var(--space-2); padding: 24px 0; }
+  .rrow__meta { margin-left: auto; padding-left: 0; }
+  .rrow__name { flex: 1 1 100%; margin-left: 0; order: 3; }
+}
+
+
+/* ==========================================================================
+   8. BIJELO ZAGLAVLJE NA TAMNOM HEROU
+   --------------------------------------------------------------------------
+   Konstra ima dvije verzije zaglavlja i bira po stranici: /service nosi
+   "Desktop White" jer je hero taman, /contact i /about nose "Desktop Black"
+   jer im je hero na svijetloj podlozi. Kod nas isto: .header--light se stavlja
+   samo na stranicama sa tamnim heroom.
+
+   Pravila su ista kao za [data-scrolled=true], samo bez pozadine: dok se ne
+   skroluje, zaglavlje pluta preko fotografije.
+   ========================================================================== */
+/* PRIDE: the mark swap is handled by the two stacked logo files in
+   styles.css, so no filter here. It would flatten the teal. */
+.header--light:not([data-scrolled="true"]) .brand__name,
+.header--light:not([data-scrolled="true"]) .nav__link,
+.header--light:not([data-scrolled="true"]) .btn--bare { color: var(--ash-50); }
+.header--light:not([data-scrolled="true"]) .nav__dot { background-color: var(--ash-50); }
+
+.header--light:not([data-scrolled="true"]) .menu-toggle {
+  border-color: var(--ash-50);
+  color: var(--ash-50);
+}
+
+.header--light:not([data-scrolled="true"]) .nav__link.is-soon { color: var(--ash-500); }
+
+/* ==========================================================================
+   ZAGLAVLJE PREKO TAMNE FOTOGRAFIJE  /  .header--on-dark
+   --------------------------------------------------------------------------
+   Stranice Usluge i Galerija pocinju .phero sekcijom: fotografija preko
+   cijele sirine sa velom rgba(10, 15, 31, 0.70). Zaglavlje je na vrhu
+   providno i nosi tamna slova, koja su na pocetnoj citljiva jer je tamo
+   iznad heroja pjescani preliv.
+
+   Izmjereno na 1440 px, prosjek stvarnih piksela iza navigacije:
+     pocetna    rgb(249, 204, 113)   kontrast prema #454D4D = 6.08:1  AA
+     usluge     rgb( 27,  57,  91)   kontrast prema #454D4D = 1.28:1  pada
+     galerija   rgb( 81,  63,  33)   kontrast prema #454D4D = 1.10:1  pada
+
+   Navigacija je na te dvije strane bila prakticno nevidljiva. Zato one
+   nose .header--on-dark, koja dok se ne skroluje daje ista svijetla slova
+   kao i stanje [data-scrolled="true"], samo bez crne podloge. Kad se
+   skroluje, postojeca pravila preuzimaju i ovdje se nista ne mijenja.
+
+   Kontrast poslije: #F7F8F8 na obje podloge preko 11:1, AAA.
+   ========================================================================== */
+.header--on-dark:not([data-scrolled="true"]) .brand__name { color: var(--ash-50); }
+
+/* PRIDE: same as above, the two stacked logo files do the swap. */
+.header--on-dark:not([data-scrolled="true"]) .brand__badge--dark  { opacity: 0; }
+.header--on-dark:not([data-scrolled="true"]) .brand__badge--light { opacity: 1; }
+
+.header--on-dark:not([data-scrolled="true"]) .nav__link { color: var(--ash-50); }
+.header--on-dark:not([data-scrolled="true"]) .nav__dot  { background-color: var(--ash-50); }
+.header--on-dark:not([data-scrolled="true"]) .btn--bare { color: var(--ash-100); }
+
+.header--on-dark:not([data-scrolled="true"]) .menu-toggle {
+  border-color: var(--ash-50);
+  color: var(--ash-50);
+}
+
+.header--on-dark:not([data-scrolled="true"]) .menu-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+
+/* ==========================================================================
+   PRAVNA STRANA  /  .legal
+   --------------------------------------------------------------------------
+   Politika privatnosti. Skill 02 (korak 9) je trazi na svakom sajtu i linkuje
+   je iz podnozja svake strane. Postala je stvarno potrebna 02.09.2026, kad je
+   obrazac povezan na Apps Script: od tada sajt zaista prikuplja ime, telefon
+   i mejl, pa mora pisati sta se s tim radi.
+
+   Nema svoju komponentu na Konstri, pa je ovo obican tekstualni stub u
+   ritmu ostatka sajta: jedna kolona, mjera reda oko 68 znakova.
+   ========================================================================== */
+.legal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 0 var(--container-pad) 112px;
+  background-color: var(--ash-50);
+}
+
+/* Nosac je isti kao na .ahero (1320px, centriran), da tekst pocinje na istoj
+   liniji kao naslov iznad njega. Mjera reda se ogranicava IZNUTRA, preko
+   .legal__block, a ne suzavanjem nosaca: sa max-width na nosacu je cijeli
+   stub bio centriran u odnosu na naslov i uvucen za 280px. */
+.legal__inner {
+  width: 100%;
+  max-width: var(--container-content);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.legal h2 {
+  margin: var(--space-6) 0 0;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  line-height: var(--leading-h5);
+  letter-spacing: var(--tracking-tight);
+  font-weight: var(--weight-medium);
+  color: var(--color-heading);
+}
+
+.legal p,
+.legal li {
+  margin: 0;
+  font-size: var(--text-lg);
+  line-height: var(--leading-lead);
+  color: var(--color-text);
+}
+
+/* Globalni reset ima `ul, ol { list-style: none }`, pa nabrajanje ovdje
+   mora izricito da vrati tackice. Bez toga su stavke izgledale kao obicni
+   uvuceni pasusi i spisak se nije citao kao spisak. */
+.legal ul {
+  margin: 0;
+  padding-left: 1.25em;
+  list-style: disc;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.legal li { display: list-item; }
+.legal li::marker { color: var(--ash-600); }
+
+.legal a { color: var(--color-heading); text-decoration: underline; text-underline-offset: 3px; }
+
+.legal__block { display: flex; flex-direction: column; gap: var(--space-4); max-width: 68ch; }
+
+.legal__meta {
+  max-width: 68ch;
+  padding-top: var(--space-6);
+  border-top: var(--border-width) solid var(--ash-300);
+  font-size: var(--text-sm);
+  color: var(--ash-600);
+}
+
+@media (max-width: 809.98px) {
+  .legal { padding-bottom: 64px; }
+  .legal p, .legal li { font-size: var(--text-base); }
+}
+
+
+/* ==========================================================================
+   NASLOV NA KONTAKTU  /  stepenasta skala
+   --------------------------------------------------------------------------
+   Povecan 02.09.2026. na zahtjev. Skala je stepenasta, ne fluidna: prelomne
+   tacke projekta su 810 i 1440, a clamp() bas na njima promasuje.
+
+     mobilni  <=809.98   40 / 44   nepromijenjeno
+     tablet   810..1439  56 / 60
+     desktop  >=1440     68 / 72
+
+   Naslov je rucno prelomljen kroz <br>, pa je prvi red ("Recite sta, gde i
+   za kada.") najduzi. Na 68px zauzima oko 780px od 1296px raspolozivih.
+   Na mobilnom ostaje 40px: tamo se i taj vec lomi u tri reda na 390px.
+   Blok stoji na kraju fajla, iza svih medija upita, da ga nista ne pregazi.
+   ========================================================================== */
+@media (min-width: 810px) {
+  .kontakt__title { font-size: 56px; line-height: 60px; }
+}
+
+@media (min-width: 1440px) {
+  .kontakt__title { font-size: 68px; line-height: 72px; }
+}
