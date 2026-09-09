@@ -4,7 +4,11 @@
     {
       "name": "pride-site",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "5178", "--directory", "site"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "5178"
+      ],
       "port": 5178
     }
   ]

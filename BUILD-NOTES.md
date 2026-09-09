@@ -92,5 +92,5 @@ Marked with `TODO` comments in the files:
 ## Running it
 
 ```bash
-python -m http.server 5178 --directory site
+python -m http.server 5178
 ```
